@@ -1,9 +1,15 @@
-DEFAULT memtest86
+DEFAULT redorescue
   SAY Now booting in the PXE Boot MENU...
 
-LABEL memtest86
-  MENU LABEL Memtest86+
-  KERNEL /memtest/memtest86+
+#LABEL memtest86
+#  MENU LABEL Memtest86+
+#  KERNEL /memtest/memtest86+
+LABEL redorescue
+  MENU redorecue entry
+  KERNEL /redorescue-4.0.0/vmlinuz
+  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/srv/redorescue ro ip=dhcp
+  INITRD /redorescue-4.0.0/initrd
+
 # eventually include additional entries
 INCLUDE pxelinux.cfg/additional_menu_entries
 
