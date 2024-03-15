@@ -5,22 +5,31 @@ LABEL maintainer "ferrari.marco@gmail.com"
 # Install the necessary packages
 RUN apk add --no-cache \
   dnsmasq \
-  wget
+  wget \
+  nfs-utils \
+  bash
 
 ENV MEMTEST_VERSION 5.31b
-ENV SYSLINUX_VERSION 6.03
+# ENV SYSLINUX_VERSION 6.03
+ENV SYSLINUX_VERSION 6.04-pre1
 ENV TEMP_SYSLINUX_PATH /tmp/syslinux-"$SYSLINUX_VERSION"
 
 WORKDIR /tmp
 RUN \
   mkdir -p "$TEMP_SYSLINUX_PATH" \
-  && wget -q https://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-"$SYSLINUX_VERSION".tar.gz \
+  # && wget -q https://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-"$SYSLINUX_VERSION".tar.gz \
+  && wget -q https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/Testing/6.04/syslinux-"$SYSLINUX_VERSION".tar.gz \
   && tar -xzf syslinux-"$SYSLINUX_VERSION".tar.gz \
-  && mkdir -p /var/lib/tftpboot \
-  && cp "$TEMP_SYSLINUX_PATH"/bios/core/pxelinux.0 /var/lib/tftpboot/ \
-  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/libutil/libutil.c32 /var/lib/tftpboot/ \
-  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/elflink/ldlinux/ldlinux.c32 /var/lib/tftpboot/ \
-  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/menu/menu.c32 /var/lib/tftpboot/ \
+  && mkdir -p /var/lib/tftpboot/bios \
+  && cp "$TEMP_SYSLINUX_PATH"/bios/core/pxelinux.0 /var/lib/tftpboot/bios/ \
+  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/libutil/libutil.c32 /var/lib/tftpboot/bios/ \
+  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/elflink/ldlinux/ldlinux.c32 /var/lib/tftpboot/bios/ \
+  && cp "$TEMP_SYSLINUX_PATH"/bios/com32/menu/menu.c32 /var/lib/tftpboot/bios/ \
+  && mkdir -p /var/lib/tftpboot/efi \
+  && cp "$TEMP_SYSLINUX_PATH"/efi64/com32/libutil/libutil.c32 /var/lib/tftpboot/efi \
+  && cp "$TEMP_SYSLINUX_PATH"/efi64/com32/menu/menu.c32 /var/lib/tftpboot/efi \
+  && cp "$TEMP_SYSLINUX_PATH"/efi64/efi/syslinux.efi /var/lib/tftpboot/efi \
+  && cp "$TEMP_SYSLINUX_PATH"/efi64/com32/elflink/ldlinux/ldlinux.e64 /var/lib/tftpboot/efi \
   && rm -rf "$TEMP_SYSLINUX_PATH" \
   && rm /tmp/syslinux-"$SYSLINUX_VERSION".tar.gz \
   && wget -q http://www.memtest.org/download/archives/"$MEMTEST_VERSION"/memtest86+-"$MEMTEST_VERSION".bin.gz \
@@ -28,14 +37,28 @@ RUN \
   && mkdir -p /var/lib/tftpboot/memtest \
   && mv memtest86+-$MEMTEST_VERSION.bin /var/lib/tftpboot/memtest/memtest86+
 
+RUN \
+  mkdir -p /var/lib/tftpboot/bios/redorescue \
+  && mkdir -p /var/lib/tftpboot/efi/redorescue
+
 # Configure PXE and TFTP
 COPY tftpboot/ /var/lib/tftpboot
+
+COPY redorescue/initrd /var/lib/tftpboot/bios/redorescue
+COPY redorescue/vmlinuz /var/lib/tftpboot/bios/redorescue
+
+COPY redorescue/initrd /var/lib/tftpboot/efi/redorescue
+COPY redorescue/vmlinuz /var/lib/tftpboot/efi/redorescue
+# COPY redorescue/live /redorescue
 
 # Configure DNSMASQ
 COPY etc/ /etc
 
 # Start dnsmasq. It picks up default configuration from /etc/dnsmasq.conf and
 # /etc/default/dnsmasq plus any command line switch
+#ENTRYPOINT ["dnsmasq", "--no-daemon"]
+#CMD ["--dhcp-range=192.168.56.2,proxy"]
+
 ENTRYPOINT ["dnsmasq", "--no-daemon"]
 CMD ["--dhcp-range=192.168.56.10,192.168.56.200,255.255.255.0"]
 

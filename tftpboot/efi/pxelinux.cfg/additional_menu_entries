@@ -1,0 +1,10 @@
+  GNU nano 7.2                                              /var/lib/tftpboot/pxelinux.cfg/additional_menu_entries                                                        
+LABEL memtest86
+.  MENU LABEL Memtest86+ 2nd entry
+  KERNEL /memtest/memtest86+
+#LABEL redorescue
+#  MENU redorecue entry
+#  KERNEL /redorescue-4.0.0/vmlinuz
+#  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/srv/redorescue ro ip=dhcp
+#  INITRD /redorescue-4.0.0/initrd
+

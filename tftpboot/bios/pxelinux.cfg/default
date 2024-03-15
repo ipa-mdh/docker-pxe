@@ -6,9 +6,9 @@ DEFAULT redorescue
 #  KERNEL /memtest/memtest86+
 LABEL redorescue
   MENU redorecue entry
-  KERNEL /redorescue-4.0.0/vmlinuz
-  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/srv/redorescue ro ip=dhcp
-  INITRD /redorescue-4.0.0/initrd
+  KERNEL /redorescue/vmlinuz
+  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/srv ro ip=dhcp
+  INITRD /redorescue/initrd
 
 # eventually include additional entries
 INCLUDE pxelinux.cfg/additional_menu_entries
