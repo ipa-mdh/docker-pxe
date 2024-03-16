@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build . --tag="pxe"
+docker build --tag pxe .
