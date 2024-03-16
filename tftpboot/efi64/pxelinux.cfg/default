@@ -7,7 +7,7 @@ DEFAULT redorescue
 LABEL redorescue
   MENU redorecue entry
   KERNEL /redorescue/vmlinuz
-  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/srv ro ip=dhcp
+  APPEND boot=live splash config components netboot=nfs nfsroot=192.168.56.2:/ ro ip=dhcp
   INITRD /redorescue/initrd
   # INITRD /redorescue/efiboot.img
 
